@@ -1,11 +1,12 @@
 "use client";
 import { FolderIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
-export default function NavItem({ item, activePath, openFolders, setPath, toggleFolder }) {
+export default function NavItem({ item, activePath, openFolders, setPath, toggleFolder, setSelected }) {
   const isActive = String(item.path) === String(activePath);
   const isOpen = openFolders.includes(item.path);
 
   const handleClick = () => {
+    setSelected([]);
     setPath(item.path); // muda o path
     if (item.has_children || (item.children && item.children.length > 0)) {
       toggleFolder(item.path); // alterna aberto/fechado
@@ -36,7 +37,8 @@ export default function NavItem({ item, activePath, openFolders, setPath, toggle
               activePath={activePath}
               openFolders={openFolders}
               setPath={setPath}
-              toggleFolder={toggleFolder} // ⚡ passa para os filhos
+              toggleFolder={toggleFolder}
+              setSelected={setSelected} // ⚡ passa para os filhos
             />
           ))}
         </ul>

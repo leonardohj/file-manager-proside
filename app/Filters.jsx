@@ -2,10 +2,10 @@
 import { FunnelIcon, BarsArrowUpIcon, BarsArrowDownIcon, Squares2X2Icon, FolderIcon, PhotoIcon, VideoCameraIcon, ListBulletIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 
-export default function Filters() {
-  const [filter, setFilter] = useState('all');
+export default function Filters({filter, setFilter, viewMode, setViewMode}) {
+
   const [openFilter, setOpenFilter] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // exemplo para viewOptions
+
 
   const filterOptions = {
     ordenar: [
