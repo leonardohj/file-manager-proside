@@ -1,26 +1,23 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+    --color-proximo-50: #f0fdfa;
+    --color-proximo-100: #ccfbf1;
+    --color-proximo-200: #99f6e4;
+    --color-proximo-300: #5eead4;
+    --color-proximo-400: #2dd4bf;
+    --color-proximo-500: #14b8a6;
+    --color-proximo-600: #0d9488;
+    --color-proximo-700: #0f766e;
+    --color-proximo-800: #115e59;
+    --color-proximo-900: #134e4a;
+    --color-proximo-950: #042f2e;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+  
+  [x-cloak] { display: none !important; }
