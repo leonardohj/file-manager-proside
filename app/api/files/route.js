@@ -3,26 +3,21 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-// função recursiva para calcular o tamanho de uma pasta
 function getFolderSize(folderPath) {
   const entries = fs.readdirSync(folderPath);
   let total = 0;
-
   for (const file of entries) {
     const fullPath = path.join(folderPath, file);
     const stats = fs.statSync(fullPath);
-
     if (stats.isDirectory()) {
       total += getFolderSize(fullPath);
     } else {
       total += stats.size;
     }
   }
-
   return total;
 }
 
-// função para formatar bytes
 function formatBytes(bytes) {
   if (bytes === 0) return "0 B";
   const k = 1024;
@@ -35,6 +30,7 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const currentPath = searchParams.get("path") || "conteudos";
+    const filter = searchParams.get("filter") || "all"; // "all", "folders", "images", "videos", "az", "za"
 
     const safeBasePath = path.join(process.cwd(), "public");
     const folderPath = path.join(safeBasePath, currentPath);
@@ -55,6 +51,7 @@ export async function GET(req) {
     for (const file of entries) {
       const fullPath = path.join(folderPath, file);
       const stats = fs.statSync(fullPath);
+      if (stats.isFile() && file.endsWith(".meta.json")) continue;
 
       if (stats.isDirectory()) {
         const size = getFolderSize(fullPath);
@@ -64,8 +61,8 @@ export async function GET(req) {
           path: path.join(currentPath, file),
           url: `/${path.join(currentPath, file).replace(/\\/g, "/")}`,
           extension: "folder",
-          size, // em bytes
-          sizeFormatted: formatBytes(size) // legível
+          size,
+          sizeFormatted: formatBytes(size)
         });
       } else {
         const ext = file.includes(".")
@@ -73,7 +70,6 @@ export async function GET(req) {
           : "unknown";
 
         let type = "other";
-
         if (["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext)) type = "image";
         if (["mp4", "mov", "webm", "avi"].includes(ext)) type = "video";
 
@@ -85,13 +81,36 @@ export async function GET(req) {
           type,
           path: path.join(currentPath, file),
           extension: ext,
-          size, // em bytes
-          sizeFormatted: formatBytes(size) // legível
+          size,
+          sizeFormatted: formatBytes(size)
         });
       }
     }
 
-    const result = [...folders, ...files];
+    // aplicar filtro apenas se não for "az" ou "za"
+    let result = [];
+
+    if (filter === "folders") {
+      result = folders;
+    } else if (filter === "images") {
+      result = files.filter(f => f.type === "image");
+    } else if (filter === "videos") {
+      result = files.filter(f => f.type === "video");
+    } else {
+      result = [...folders, ...files];
+    }
+    
+    if (filter === "az" || filter === "za") {
+      result.sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        return filter === "za"
+          ? nameB.localeCompare(nameA)
+          : nameA.localeCompare(nameB);
+      });
+    } else {
+      result.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+    }
 
     return new Response(JSON.stringify({ files: result }), { status: 200 });
   } catch (err) {

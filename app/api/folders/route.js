@@ -4,16 +4,33 @@ import path from "path";
 export const runtime = "nodejs";
 
 export async function POST(req) {
-  const { folderName, currentPath } = await req.json();
-  if (!folderName) return new Response(JSON.stringify({ error: "No folder name" }), { status: 400 });
+  try {
+    const { folderName, currentPath } = await req.json();
+    if (!folderName) return new Response(JSON.stringify({ error: "No folder name" }), { status: 400 });
 
-  // Usa currentPath se existir, senão cria em "conteudos"
-  const folderPath = path.join(process.cwd(), "public", currentPath || "conteudos", folderName);
+    const safeFolderNameBase = folderName.replace(/[/\\?%*:|"<>]/g, "_");
+    let safeFolderName = safeFolderNameBase;
 
-  if (!fs.existsSync(folderPath)) {
-    fs.mkdirSync(folderPath);
-    return new Response(JSON.stringify({ success: true, folder: folderName, path: currentPath || "conteudos" }), { status: 200 });
-  } else {
-    return new Response(JSON.stringify({ error: "Folder already exists" }), { status: 400 });
+    const basePath = path.join(process.cwd(), "public", currentPath || "conteudos");
+    let folderPath = path.join(basePath, safeFolderName);
+
+    // Add counter if folder already exists
+    let counter = 1;
+    while (fs.existsSync(folderPath)) {
+      safeFolderName = `${safeFolderNameBase} (${counter})`;
+      folderPath = path.join(basePath, safeFolderName);
+      counter++;
+    }
+
+    fs.mkdirSync(folderPath, { recursive: true });
+
+    return new Response(JSON.stringify({
+      success: true,
+      folder: safeFolderName,
+      path: currentPath || "conteudos"
+    }), { status: 200 });
+  } catch (err) {
+    console.error("Erro ao criar pasta:", err);
+    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
   }
 }

@@ -3,18 +3,20 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-function buildTree(basePath, relativePath = "conteudos", openFolders = []) {
+function buildTree(relativePath = "conteudos", openFolders = []) {
   const fullPath = path.join(process.cwd(), "public", relativePath);
 
-  if (!fs.existsSync(fullPath) || !fs.lstatSync(fullPath).isDirectory()) return [];
+  if (!fs.existsSync(fullPath) || !fs.lstatSync(fullPath).isDirectory()) {
+    return [];
+  }
 
-  const directories = fs.readdirSync(fullPath, { withFileTypes: true })
+  const directories = fs
+    .readdirSync(fullPath, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory());
 
-  return directories.map((dirent) => {
+  return directories.map(dirent => {
     const name = dirent.name;
     const currentRelative = path.join(relativePath, name);
-
     const childFullPath = path.join(process.cwd(), "public", currentRelative);
 
     const subDirs = fs.existsSync(childFullPath)
@@ -28,8 +30,9 @@ function buildTree(basePath, relativePath = "conteudos", openFolders = []) {
       path: currentRelative,
       has_children: hasChildren,
       children: openFolders.includes(currentRelative)
-        ? buildTree(basePath, currentRelative, openFolders)
+        ? buildTree(currentRelative, openFolders)
         : [],
+      type: "folder"
     };
   });
 }
@@ -40,7 +43,7 @@ export async function GET(req) {
     const openFoldersParam = url.searchParams.get("openFolders") || "";
     const openFolders = openFoldersParam ? openFoldersParam.split(",") : [];
 
-    const tree = buildTree(null, "conteudos", openFolders);
+    const tree = buildTree("conteudos", openFolders);
 
     return new Response(JSON.stringify(tree), { status: 200 });
   } catch (err) {

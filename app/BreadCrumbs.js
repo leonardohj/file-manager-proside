@@ -1,7 +1,9 @@
 import React from "react";
 import { ChevronRight } from 'lucide-react';
+import { useFileManagerContext } from "./FileManagerContext";
 
-export default function BreadCrumbs({ path, onNavigate, setPath }) {
+export default function BreadCrumbs() {
+    const { path, setPath } = useFileManagerContext();
   // .filter(Boolean) removes empty strings if path starts/ends with '/'
   const segments = path.split('/').filter(Boolean);
 

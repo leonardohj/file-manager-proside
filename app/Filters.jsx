@@ -1,8 +1,10 @@
 "use client";
 import { FunnelIcon, BarsArrowUpIcon, BarsArrowDownIcon, Squares2X2Icon, FolderIcon, PhotoIcon, VideoCameraIcon, ListBulletIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
+import { useFileManagerContext } from "./FileManagerContext";
 
-export default function Filters({filter, setFilter, viewMode, setViewMode}) {
+export default function Filters() {
+  const {filter, setFilter, viewMode, setViewMode} = useFileManagerContext();
 
   const [openFilter, setOpenFilter] = useState(false);
 
