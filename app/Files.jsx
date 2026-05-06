@@ -31,9 +31,11 @@ export default function Files() {
     setDragOverItem,
     draggingItem,
     sendSelectedFile,
+    files,
+    setFiles
   } = useFileManagerContext();
 
-  const [files, setFiles] = useState([]);
+
   const [timeLeftMap, setTimeLeftMap] = useState({});
 
   const fetchFiles = useCallback(async () => {
@@ -114,6 +116,11 @@ export default function Files() {
           ? "h-full"
           : "p-6 grid grid-cols-[repeat(auto-fill,177px)] gap-5 justify-center content-start h-full"
       }
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          setSelected([]);
+        }
+      }}
       onContextMenu={(e) => {
         e.preventDefault();
         // Only show background menu if NOT clicking a file
@@ -365,7 +372,10 @@ export default function Files() {
                   <td className="text-gray-500 flex justify-end items-center py-2 px-4 gap-2">
                     <button
                       type="button"
-                      onClick={() => openModal("rename", file.type, file)}
+                      onClick={() => openModal("rename", file.type, file.name.replace(
+                        new RegExp(`\\.${contextMenu.file.extension}$`, "i"),
+                        ""
+                      ))}
                       className="hidden cursor-pointer group-hover:flex items-center justify-center w-7 h-7 hover:text-proximo-600 hover:bg-proximo-200 rounded-full transition-colors"
                     >
                       <PencilIcon className="w-4 h-4 text-proximo-600" />

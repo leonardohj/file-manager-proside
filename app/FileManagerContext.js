@@ -7,6 +7,7 @@ export function FileManagerProvider({ children }) {
   // ===========================
   // States
   // ===========================
+  const [files, setFiles] = useState([]);
   const [path, setPath] = useState("conteudos");
   const [selected, setSelected] = useState([]);
   const [contextMenu, setContextMenu] = useState({
@@ -42,15 +43,26 @@ export function FileManagerProvider({ children }) {
     );
   };
 
+  const selectAll = () => {
+    if (!files || files.length === 0) return;
+
+    setSelected(files);
+
+    setContextMenu((prev) => ({
+      ...prev,
+      visible: false,
+      selectedFiles: files,
+    }));
+  };
+
   const handleCreateFolder = async (folderName, setFolderName) => {
     if (path === "apagados") return;
     if (!folderName.trim()) return;
 
     try {
-        
       const cleanName = folderName.trim();
       const parentPath = contextMenu.file?.path || path;
-      console.log(cleanName + ", " + path)
+      console.log(cleanName + ", " + path);
 
       await fetch("/api/folders", {
         method: "POST",
@@ -329,7 +341,10 @@ export function FileManagerProvider({ children }) {
         openModal,
         sendSelectedFile,
         showTree,
-        setShowTree
+        setShowTree,
+        files,
+        setFiles,
+        selectAll,
       }}
     >
       {children}

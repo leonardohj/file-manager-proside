@@ -25,7 +25,8 @@ export default function ContextMenu() {
     setModalConfig,
     openModal,
     handleMoveToApagados,
-    sendSelectedFile
+    sendSelectedFile,
+    selectAll
   } = useFileManagerContext();
 
   const menuRef = useRef(null);
@@ -72,7 +73,20 @@ export default function ContextMenu() {
               : contextMenu.file.name}
           </div>
 
-          {contextMenu.file.type !== "folder" &&
+          {contextMenu.file.type === "background" ? (
+            <>
+              <button
+                onClick={() => selectAll()}
+                className="w-full text-left px-4 py-2.5 hover:bg-proximo-50 flex items-center gap-2 transition-colors"
+              >
+                <CursorArrowRaysIcon className="w-4 h-4 text-proximo-600" />
+                <span>Selecionar todos</span>
+              </button>
+            </>
+          ) : (
+            <></>
+          )}
+          {contextMenu.file.type !== "folder" || contextMenu.file.type !== "background" &&
             contextMenu.selectedFiles?.every((f) =>
               ["image", "video", "other"].includes(f.type)
             ) && (
@@ -87,9 +101,10 @@ export default function ContextMenu() {
                 <div className="border-t border-gray-100 my-1"></div>
               </>
             )}
-          {(contextMenu.selectedFiles?.length <= 1 || contextMenu.selectedFiles === null) && (
+          {(contextMenu.selectedFiles?.length <= 1 ||
+            contextMenu.selectedFiles === null) && (
             <>
-            {console.log(contextMenu.selectedFiles)}
+              {console.log(contextMenu.selectedFiles)}
               {(contextMenu.file.type === "folder" ||
                 contextMenu.file.type === "tree-father") && (
                 <button
@@ -116,7 +131,7 @@ export default function ContextMenu() {
                 </button>
               )}
 
-              {contextMenu.file.type !== "tree-father" && (
+              {contextMenu.file.type !== "tree-father" && contextMenu.file.type !== "background" && (
                 <button
                   onClick={() =>
                     openModal(
@@ -140,10 +155,10 @@ export default function ContextMenu() {
             contextMenu.file.type === "video" ||
             contextMenu.file.type === "other") && (
             <>
-              {(contextMenu.selectedFiles?.length > 0 &&
+              {contextMenu.selectedFiles?.length > 0 &&
                 contextMenu.selectedFiles?.every((f) =>
                   ["image", "video", "other"].includes(f.type)
-                )) && (
+                ) && (
                   <a
                     href={
                       contextMenu.selectedFiles.length === 1

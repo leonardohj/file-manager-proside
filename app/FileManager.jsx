@@ -65,7 +65,7 @@ export default function FileManager() {
       <div className="bg-proximo-800 select-none p-2 flex justify-between items-center text-white z-20 shadow-md">
         <div className="flex items-center gap-4">
           <button className="p-1 hover:bg-proximo-700 rounded transition-colors focus:outline-none">
-            <Bars3Icon className="w-6 h-6" onClick={() => setShowTree(prev)} />
+            <Bars3Icon className="w-6 h-6" onClick={() => setShowTree(prev => !prev)} />
           </button>
           <img src="/logo.png" className="h-7" alt="Proximo" />
         </div>
@@ -113,7 +113,6 @@ export default function FileManager() {
                     ],
                   });
                 }}
-                draggable
                 onDragStart={(e) =>
                   handleDragStart(e, {
                     path: "conteudos",
@@ -173,28 +172,34 @@ export default function FileManager() {
             <Filters />
           </div>
           <div
-  className="overflow-y-auto h-full w-full relative"
-  onDragOver={(e) => {
-    e.preventDefault();
-    // Optional: highlight background while dragging external files
-    e.currentTarget.classList.add("bg-proximo-100/50");
-  }}
-  onDragLeave={(e) => {
-    e.currentTarget.classList.remove("bg-proximo-100/50");
-  }}
-  onDrop={async (e) => {
-    e.preventDefault();
-    e.currentTarget.classList.remove("bg-proximo-100/50");
-
-    const files = Array.from(e.dataTransfer.files);
-    if (!files.length) return;
-
-    // Reuse handleFileChange for each external file
-    for (const file of files) {
-      // create a synthetic event to match handleFileChange signature
-      await handleFileChange({ target: { files: [file] } });
-    }
-  }}
+ className="overflow-y-auto h-full w-full relative"
+ onDragOver={(e) => {
+  if(path === "apagados") {return}
+   if (!e.dataTransfer.types.includes("Files")) return; // ignore internal drags
+ 
+   e.preventDefault();
+   e.currentTarget.classList.add("bg-proximo-100/50");
+ }}
+ 
+ onDragLeave={(e) => {
+   if (!e.dataTransfer.types.includes("Files")) return;
+   e.currentTarget.classList.remove("bg-proximo-100/50");
+ }}
+ 
+ onDrop={async (e) => {
+  if(path === "apagados") {return}
+   if (!e.dataTransfer.types.includes("Files")) return; // ignore file-manager drags
+ 
+   e.preventDefault();
+   e.currentTarget.classList.remove("bg-proximo-100/50");
+ 
+   const files = Array.from(e.dataTransfer.files);
+   if (!files.length) return;
+ 
+   for (const file of files) {
+     await handleFileChange({ target: { files: [file] } });
+   }
+ }}
 >
   <Files />
 </div>
